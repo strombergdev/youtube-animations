@@ -209,7 +209,7 @@ class RGBPixelGrid(Scene):
         self.wait(2)
 
         # Add 4:4:4 label
-        format_444_label = Text("4:4:4 - Full Resolution", font_size=32)
+        format_444_label = Text("4:4:4 - Full Resolution", font_size=36)
         format_444_label.to_edge(UP)
         self.play(Write(format_444_label))
 
@@ -247,7 +247,7 @@ class RGBPixelGrid(Scene):
 
         # Show 4:2:2
         format_422_label = Text(
-            "4:2:2 - Half Horizontal Color Resolution", font_size=32
+            "4:2:2 - Half Horizontal Color Resolution", font_size=36
         )
         format_422_label.to_edge(UP)
         self.play(Write(format_422_label))
@@ -285,7 +285,7 @@ class RGBPixelGrid(Scene):
         self.wait(1)  # Clear pause between formats
 
         # Show 4:2:0
-        format_420_label = Text("4:2:0 - Quarter Color Resolution", font_size=32)
+        format_420_label = Text("4:2:0 - Quarter Color Resolution", font_size=36)
         format_420_label.to_edge(UP)
         self.play(Write(format_420_label))
 
@@ -408,7 +408,7 @@ def create_ycbcr_grid(
 class BitDepthExplanation(Scene):
     def construct(self):
         # Create title
-        title = Text("8-bit Color Depth", font_size=48)
+        title = Text("8-bit Color Depth", font_size=36)
         self.play(Write(title))
         self.wait(1)
         self.play(FadeOut(title))
@@ -789,7 +789,7 @@ class TenBitComparison(Scene):
 class BitDepthComparison(Scene):
     def construct(self):
         # Title
-        title = Text("8-bit vs 10-bit Storage Comparison", font_size=32)
+        title = Text("8-bit vs 10-bit Storage Comparison", font_size=36)
         title.to_edge(UP)
         self.play(Write(title))
         self.wait(1)
@@ -843,7 +843,7 @@ class BitDepthComparison(Scene):
 class BitDepthGrowth(Scene):
     def construct(self):
         # Title
-        title = Text("8-bit vs 10-bit: Value Growth vs Storage Growth", font_size=32)
+        title = Text("8-bit vs 10-bit: Value Growth vs Storage Growth", font_size=36)
         title.to_edge(UP)
         self.play(Write(title))
         self.wait(1)
@@ -906,7 +906,7 @@ class BitDepthGrowth(Scene):
 
         # Final comparison
         final_comparison = Text(
-            "4× more precision for 25% more storage", font_size=32, color=YELLOW
+            "4× more precision for 25% more storage", font_size=36, color=YELLOW
         )
         final_comparison.next_to(storage_ratio, DOWN, buff=1)
         self.play(Write(final_comparison))
@@ -1244,7 +1244,7 @@ class RGBtoYCbCr(Scene):
         self.wait(0.5)
 
         # Show 4:4:4
-        format_444_label = Text("4:4:4 - Full Resolution", font_size=32)
+        format_444_label = Text("4:4:4 - Full Resolution", font_size=36)
         format_444_label.to_edge(UP)
         self.play(Write(format_444_label))
 
@@ -1282,7 +1282,7 @@ class RGBtoYCbCr(Scene):
 
         # Show 4:2:2
         format_422_label = Text(
-            "4:2:2 - Half Horizontal Color Resolution", font_size=32
+            "4:2:2 - Half Horizontal Color Resolution", font_size=36
         )
         format_422_label.to_edge(UP)
         self.play(Write(format_422_label))
@@ -1320,7 +1320,7 @@ class RGBtoYCbCr(Scene):
         self.wait(1)  # Clear pause between formats
 
         # Show 4:2:0
-        format_420_label = Text("4:2:0 - Quarter Color Resolution", font_size=32)
+        format_420_label = Text("4:2:0 - Quarter Color Resolution", font_size=36)
         format_420_label.to_edge(UP)
         self.play(Write(format_420_label))
 
@@ -1375,7 +1375,7 @@ class RGBtoYCbCr(Scene):
 
         diff_image = ImageMobject("imgs/subsampling-diff.png")
         # Set height to match previous image size while maintaining aspect ratio
-        diff_image.set_height(6)
+        diff_image.set_width(14)  # Set to frame width with margin
         diff_image.move_to(ORIGIN)
 
         self.play(FadeIn(diff_image))
