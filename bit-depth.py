@@ -715,3 +715,67 @@ class BitDepthGrowth(Scene):
         final_comparison.next_to(storage_ratio, DOWN, buff=1)
         self.play(Write(final_comparison))
         self.wait(2)
+
+
+class LuminancePerception(Scene):
+    def construct(self):
+        # Title
+        title = Text("Human Vision: Luminance vs Color", font_size=36)
+        title.to_edge(UP)
+        self.play(Write(title))
+        self.wait(1)
+
+        # Load the beach image
+        beach_img = ImageMobject("imgs/beach2.png")
+        beach_img.set_height(6)  # Make it larger for better visibility
+        beach_img.move_to(ORIGIN)
+
+        # Create highlighting rectangles
+        face_rect = Rectangle(
+            width=2, height=2.2, stroke_color=YELLOW, stroke_width=3, fill_opacity=0
+        )
+        face_rect.move_to(
+            beach_img.get_center() + UP * 1.5 + LEFT * 0.5
+        )  # Moved higher up and left
+
+        background_rect = Rectangle(
+            width=5,
+            height=2.5,  # Made slightly larger to cover more of the sky/ocean
+            stroke_color=BLUE,
+            stroke_width=3,
+            fill_opacity=0,
+        )
+        background_rect.move_to(
+            beach_img.get_center() + UP * 2.5 + RIGHT * 3.2
+        )  # Moved to upper portion
+
+        # Show original image
+        self.play(FadeIn(beach_img))
+        self.wait(1)
+
+        # Add explanation about luminance
+        explanation1 = Text(
+            "Humans are more sensitive to light/dark differences\nthan to color variations",
+            font_size=24,
+        )
+        explanation1.next_to(beach_img, DOWN, buff=0.5)
+        self.play(Write(explanation1))
+        self.wait(1)
+
+        # First highlight face region
+        face_label = Text("Face: Rich in luminance detail", font_size=24, color=WHITE)
+        face_label.next_to(face_rect, RIGHT, buff=0.5)
+
+        self.play(Create(face_rect), Write(face_label))
+        self.wait(2)  # Longer pause on face highlight
+
+        # Fade out face highlight before showing background
+        self.play(FadeOut(face_rect), FadeOut(face_label))
+        self.wait(0.5)
+
+        # Then highlight background region
+        bg_label = Text("Background: Mostly color variation", font_size=24, color=WHITE)
+        bg_label.next_to(background_rect, LEFT, buff=0.5)
+
+        self.play(Create(background_rect), Write(bg_label))
+        self.wait(2)  # Longer pause on background highlight
