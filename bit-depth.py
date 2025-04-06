@@ -317,6 +317,35 @@ class RGBPixelGrid(Scene):
         self.play(Write(final_explanation))
         self.wait(2)
 
+        # Clear everything before showing difference image
+        self.play(
+            *[
+                FadeOut(mob)
+                for mob in [
+                    format_420_label,
+                    axes_420,
+                    x_label_420,
+                    y_label_420,
+                    pixel_values_420,
+                    final_explanation,
+                ]
+            ]
+        )
+        self.wait(1)
+
+        # Show subsampling difference image
+        diff_title = Text("Subsampling Difference Visualization (×10)", font_size=36)
+        diff_title.to_edge(UP)
+        self.play(Write(diff_title))
+
+        diff_image = ImageMobject("imgs/subsampling-diff.png")
+        # Set height to match previous image size while maintaining aspect ratio
+        diff_image.set_height(6)
+        diff_image.move_to(ORIGIN)
+
+        self.play(FadeIn(diff_image))
+        self.wait(3)
+
 
 def create_ycbcr_grid(
     scene, axes, full=False, horizontal_subsample=False, vertical_subsample=False
@@ -1322,3 +1351,32 @@ class RGBtoYCbCr(Scene):
         final_explanation.to_edge(DOWN)
         self.play(Write(final_explanation))
         self.wait(2)
+
+        # Clear everything before showing difference image
+        self.play(
+            *[
+                FadeOut(mob)
+                for mob in [
+                    format_420_label,
+                    axes_420,
+                    x_label_420,
+                    y_label_420,
+                    pixel_values_420,
+                    final_explanation,
+                ]
+            ]
+        )
+        self.wait(1)
+
+        # Show subsampling difference image
+        diff_title = Text("Subsampling Difference Visualization (×10)", font_size=36)
+        diff_title.to_edge(UP)
+        self.play(Write(diff_title))
+
+        diff_image = ImageMobject("imgs/subsampling-diff.png")
+        # Set height to match previous image size while maintaining aspect ratio
+        diff_image.set_height(6)
+        diff_image.move_to(ORIGIN)
+
+        self.play(FadeIn(diff_image))
+        self.wait(3)
