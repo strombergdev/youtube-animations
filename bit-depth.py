@@ -152,6 +152,27 @@ class RGBPixelGrid(Scene):
         self.play(Create(axes), Write(x_label), Write(y_label))
         self.wait(1)
 
+        # Load and display the example image
+        example_image = ImageMobject(
+            "imgs/beach1.png"
+        )  # Make sure to place this image in your media directory
+        example_image.set_width(8)  # Match width with axes
+        example_image.move_to(axes.get_center())
+
+        self.play(FadeIn(example_image))
+        self.wait(1)
+
+        # Add initial explanation
+        initial_explanation = Text(
+            "Every digital image is made up of pixels", font_size=24
+        )
+        initial_explanation.to_edge(DOWN)
+        self.play(Write(initial_explanation))
+        self.wait(2)
+
+        # Fade out image and explanation
+        self.play(FadeOut(example_image), FadeOut(initial_explanation))
+
         # Create a simplified grid of pixels (5x3 for demonstration)
         pixel_values = VGroup()
 
@@ -174,8 +195,6 @@ class RGBPixelGrid(Scene):
 
                 # Create value text with larger font size
                 value_text = Text(f"[{r}, {g}, {b}]", font_size=20)
-                # Create value text
-                value_text = Text(f"[{r}, {g}, {b}]", font_size=12)
                 value_text.next_to(rgb_dots, DOWN, buff=0.1)
 
                 pixel_values.add(rgb_dots, value_text)
@@ -184,7 +203,7 @@ class RGBPixelGrid(Scene):
         self.play(LaggedStart(*[Write(dot) for dot in pixel_values], lag_ratio=0.1))
         self.wait(1)
 
-        # Add explanation
+        # Add final explanation
         explanation = Text(
             "Each pixel contains 3 color values (R,G,B)\nEach value ranges from 0 to 255",
             font_size=24,
