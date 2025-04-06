@@ -208,6 +208,173 @@ class RGBPixelGrid(Scene):
         self.play(Write(explanation))
         self.wait(2)
 
+        # Add 4:4:4 label
+        format_444_label = Text("4:4:4 - Full Resolution", font_size=32)
+        format_444_label.to_edge(UP)
+        self.play(Write(format_444_label))
+
+        axes_444 = Axes(
+            x_range=[0, 5, 1],
+            y_range=[0, 3, 1],
+            x_length=8,
+            y_length=4,
+            axis_config={"color": WHITE},
+        )
+
+        x_label_444 = Text("1920", font_size=24)
+        y_label_444 = Text("1080", font_size=24)
+        x_label_444.next_to(axes_444.x_axis.get_end(), DOWN)
+        y_label_444.next_to(axes_444.y_axis.get_end(), LEFT)
+
+        self.play(Create(axes_444), Write(x_label_444), Write(y_label_444))
+        pixel_values_444 = create_ycbcr_grid(self, axes_444, full=True)
+        self.wait(3)  # Show 444 for 3 seconds
+
+        # Remove 4:4:4 completely
+        self.play(
+            *[
+                FadeOut(mob)
+                for mob in [
+                    format_444_label,
+                    axes_444,
+                    x_label_444,
+                    y_label_444,
+                    pixel_values_444,
+                ]
+            ]
+        )
+        self.wait(1)  # Clear pause between formats
+
+        # Show 4:2:2
+        format_422_label = Text(
+            "4:2:2 - Half Horizontal Color Resolution", font_size=32
+        )
+        format_422_label.to_edge(UP)
+        self.play(Write(format_422_label))
+
+        axes_422 = Axes(
+            x_range=[0, 5, 1],
+            y_range=[0, 3, 1],
+            x_length=8,
+            y_length=4,
+            axis_config={"color": WHITE},
+        )
+
+        x_label_422 = Text("1920", font_size=24)
+        y_label_422 = Text("1080", font_size=24)
+        x_label_422.next_to(axes_422.x_axis.get_end(), DOWN)
+        y_label_422.next_to(axes_422.y_axis.get_end(), LEFT)
+
+        self.play(Create(axes_422), Write(x_label_422), Write(y_label_422))
+        pixel_values_422 = create_ycbcr_grid(self, axes_422, horizontal_subsample=True)
+        self.wait(3)  # Show 422 for 3 seconds
+
+        # Remove 4:2:2 completely
+        self.play(
+            *[
+                FadeOut(mob)
+                for mob in [
+                    format_422_label,
+                    axes_422,
+                    x_label_422,
+                    y_label_422,
+                    pixel_values_422,
+                ]
+            ]
+        )
+        self.wait(1)  # Clear pause between formats
+
+        # Show 4:2:0
+        format_420_label = Text("4:2:0 - Quarter Color Resolution", font_size=32)
+        format_420_label.to_edge(UP)
+        self.play(Write(format_420_label))
+
+        axes_420 = Axes(
+            x_range=[0, 5, 1],
+            y_range=[0, 3, 1],
+            x_length=8,
+            y_length=4,
+            axis_config={"color": WHITE},
+        )
+
+        x_label_420 = Text("1920", font_size=24)
+        y_label_420 = Text("1080", font_size=24)
+        x_label_420.next_to(axes_420.x_axis.get_end(), DOWN)
+        y_label_420.next_to(axes_420.y_axis.get_end(), LEFT)
+
+        self.play(Create(axes_420), Write(x_label_420), Write(y_label_420))
+        pixel_values_420 = create_ycbcr_grid(
+            self, axes_420, horizontal_subsample=True, vertical_subsample=True
+        )
+        self.wait(3)  # Show 420 for 3 seconds
+
+        # Add final explanation
+        final_explanation = Text(
+            "4:2:0 is most common - used in H.264, H.265, and streaming video",
+            font_size=24,
+        )
+        final_explanation.to_edge(DOWN)
+        self.play(Write(final_explanation))
+        self.wait(2)
+
+
+def create_ycbcr_grid(
+    scene, axes, full=False, horizontal_subsample=False, vertical_subsample=False
+):
+    pixel_values = VGroup()
+
+    for i in range(4):  # columns
+        for j in range(3):  # rows
+            # Create YCbCr values
+            y_val = random.randint(16, 235)  # Y range in digital
+
+            # Determine if this position should have color information
+            has_color = True
+            if (
+                horizontal_subsample and i % 2 == 1
+            ):  # Skip odd columns for 4:2:2 and 4:2:0
+                has_color = False
+            if vertical_subsample and j % 2 == 1:  # Skip odd rows for 4:2:0
+                has_color = False
+
+            if has_color:
+                cb_val = random.randint(16, 240) - 128  # Cb range centered around 0
+                cr_val = random.randint(16, 240) - 128  # Cr range centered around 0
+
+            # Create dots group
+            dots = VGroup()
+
+            # Always add Y (luminance)
+            y_dot = Dot(color="#FFFFFF", radius=0.15)
+            dots.add(y_dot)
+
+            if has_color:
+                # Add Cb and Cr for positions that should have color
+                cb_dot = Dot(color="#0000FF", radius=0.15)
+                cr_dot = Dot(color="#FF0000", radius=0.15)
+                dots.add(cb_dot, cr_dot)
+                value_text = Text(f"[{y_val}, {cb_val:+}, {cr_val:+}]", font_size=20)
+            else:
+                # Add X marks for missing color information
+                cb_x = Text("×", font_size=24, color=GRAY).scale(1.2)
+                cr_x = Text("×", font_size=24, color=GRAY).scale(1.2)
+                dots.add(cb_x, cr_x)
+                value_text = Text(f"[{y_val}, ×, ×]", font_size=20)
+
+            # Arrange dots horizontally
+            dots.arrange(RIGHT, buff=0.2)
+            dots.move_to(axes.c2p(i * 1.2 + 0.8, j + 0.5) + UP * 0.2)
+
+            # Position value text
+            value_text.next_to(dots, DOWN, buff=0.15)
+
+            pixel_values.add(dots, value_text)
+
+    # Animate grid appearing
+    scene.play(LaggedStart(*[Write(dot) for dot in pixel_values], lag_ratio=0.1))
+
+    return pixel_values
+
 
 class BitDepthExplanation(Scene):
     def construct(self):
@@ -779,3 +946,379 @@ class LuminancePerception(Scene):
 
         self.play(Create(background_rect), Write(bg_label))
         self.wait(2)  # Longer pause on background highlight
+
+
+class RGBtoYCbCr(Scene):
+    def construct(self):
+        # Start with the problem statement
+        problem = Text(
+            "Problem: How can we compress color\nwhile preserving luminance?",
+            font_size=40,
+        ).move_to(ORIGIN)
+
+        self.play(Write(problem))
+        self.wait(2)
+        self.play(FadeOut(problem))
+        self.wait(0.5)
+
+        # Create a single pixel representation
+        pixel_group = VGroup()
+
+        # Generate some interesting RGB values that will show good luminance
+        r, g, b = 180, 140, 120  # Skin tone-like color
+
+        # Create RGB dots with actual RGB colors
+        rgb_dots = VGroup()
+        for value, color, label in [
+            (r, "#FF0000", "R"),
+            (g, "#00FF00", "G"),
+            (b, "#0000FF", "B"),
+        ]:
+            dot = Dot(color=color, radius=0.2)
+            # Add label above dot
+            label_text = Text(label, font_size=24).next_to(dot, UP, buff=0.2)
+            # Add value below dot
+            value_text = Text(str(value), font_size=24).next_to(dot, DOWN, buff=0.2)
+            rgb_dots.add(VGroup(dot, label_text, value_text))
+
+        # Arrange dots horizontally with more space
+        rgb_dots.arrange(RIGHT, buff=1)
+        rgb_dots.move_to(ORIGIN)
+
+        # Create the combined color preview
+        combined_color = f"#{r:02x}{g:02x}{b:02x}"
+        color_preview = Square(
+            side_length=1, fill_color=combined_color, fill_opacity=1, stroke_width=0
+        )
+        color_preview.next_to(rgb_dots, UP, buff=1)
+
+        # Add "Combined Color" label
+        preview_label = Text("Combined Color", font_size=24)
+        preview_label.next_to(color_preview, UP, buff=0.3)
+
+        # Create explanation text
+        explanation = Text(
+            "In RGB, color and brightness information are mixed together", font_size=24
+        )
+        explanation.next_to(rgb_dots, DOWN, buff=1)
+
+        # Animate everything appearing
+        self.play(FadeIn(color_preview), Write(preview_label))
+        self.wait(1)
+
+        self.play(*[Write(dot_group) for dot_group in rgb_dots], run_time=2)
+        self.wait(1)
+
+        self.play(Write(explanation))
+        self.wait(2)
+
+        # Fade out all RGB elements
+        self.play(
+            FadeOut(color_preview),
+            FadeOut(preview_label),
+            FadeOut(rgb_dots),
+            FadeOut(explanation),
+        )
+        self.wait(1)
+
+        # Show the solution with separators
+        solution_text = Text("Solution:", font_size=36).move_to(ORIGIN + UP * 1.5)
+
+        # Create YCrCb components with separators
+        components = VGroup()
+        for component, color in [
+            ("Y", WHITE),
+            ("|", GRAY),
+            ("Cb", BLUE),
+            ("|", GRAY),
+            ("Cr", RED),
+        ]:
+            text = Text(component, font_size=36, color=color)
+            components.add(text)
+
+        # Increase spacing between components
+        components.arrange(RIGHT, buff=1.5)  # Increased from 0.8
+        components.next_to(solution_text, DOWN, buff=1)
+
+        # Add component labels with more space
+        y_label = Text("(Luminance)", font_size=24, color=WHITE)
+        cb_label = Text("(Blue Difference)", font_size=24, color=BLUE)
+        cr_label = Text("(Red Difference)", font_size=24, color=RED)
+
+        # Position labels under their respective components with more vertical space
+        y_label.next_to(components[0], DOWN, buff=0.5)
+        cb_label.next_to(components[2], DOWN, buff=0.5)
+        cr_label.next_to(components[4], DOWN, buff=0.5)
+
+        # Shift the entire component group up to make room for labels
+        components.shift(UP * 0.5)
+
+        # Animate solution appearing
+        self.play(Write(solution_text))
+        self.wait(0.5)
+
+        # Animate components appearing one by one with their labels
+        self.play(Write(components[0]), Write(y_label))
+        self.wait(0.5)
+        self.play(Write(components[1]))
+        self.wait(0.2)
+        self.play(Write(components[2]), Write(cb_label))
+        self.wait(0.5)
+        self.play(Write(components[3]))
+        self.wait(0.2)
+        self.play(Write(components[4]), Write(cr_label))
+        self.wait(2)
+
+        # Show YCbCr image
+        ycbcr_img = ImageMobject("imgs/ycbcr.png")
+        ycbcr_img.set_width(14)  # Set to frame width with margin
+        ycbcr_img.move_to(ORIGIN)
+
+        # Fade out text temporarily
+        self.play(
+            FadeOut(solution_text),
+            FadeOut(components),
+            FadeOut(y_label),
+            FadeOut(cb_label),
+            FadeOut(cr_label),
+        )
+
+        # Show the image
+        self.play(FadeIn(ycbcr_img))
+        self.wait(2)  # Show image for 2 seconds
+        self.play(FadeOut(ycbcr_img))
+        self.wait(0.5)
+
+        # Show the conversion calculations
+        # Clear previous elements
+        conversion_title = Text("BT.709 Conversion", font_size=36)
+        conversion_title.to_edge(UP)
+        self.play(Write(conversion_title))
+
+        # Show color coefficients first
+        coef_title = Text("Color Sensitivity in Human Vision:", font_size=32)
+        coef_title.next_to(conversion_title, DOWN, buff=1)
+
+        # Create percentage bars and labels
+        green_percent = Text("72%", font_size=36, color=GREEN)
+        red_percent = Text("21%", font_size=36, color=RED)
+        blue_percent = Text("7%", font_size=36, color=BLUE)
+
+        percentages = VGroup(green_percent, red_percent, blue_percent)
+        percentages.arrange(RIGHT, buff=2)
+        percentages.next_to(coef_title, DOWN, buff=1)
+
+        # Add color labels
+        green_label = Text("GREEN", font_size=28, color=GREEN)
+        red_label = Text("RED", font_size=28, color=RED)
+        blue_label = Text("BLUE", font_size=28, color=BLUE)
+
+        green_label.next_to(green_percent, UP, buff=0.3)
+        red_label.next_to(red_percent, UP, buff=0.3)
+        blue_label.next_to(blue_percent, UP, buff=0.3)
+
+        # Show coefficients
+        self.play(Write(coef_title))
+        self.wait(0.5)
+
+        for label, percent in zip(
+            [green_label, red_label, blue_label],
+            [green_percent, red_percent, blue_percent],
+        ):
+            self.play(Write(label), Write(percent))
+            self.wait(0.5)
+        self.wait(1)
+
+        # Fade out coefficients before showing code
+        self.play(
+            FadeOut(coef_title),
+            FadeOut(green_label),
+            FadeOut(red_label),
+            FadeOut(blue_label),
+            FadeOut(green_percent),
+            FadeOut(red_percent),
+            FadeOut(blue_percent),
+        )
+        self.wait(0.5)
+
+        # Create the RGB values
+        rgb_values = Text("R = 180, G = 140, B = 120", font_size=28).next_to(
+            conversion_title, DOWN, buff=1
+        )
+        self.play(Write(rgb_values))
+        self.wait(1)
+
+        # Python code for conversion
+        code_comment = Text("# Rec. 709 conversion matrix", font_size=28)
+
+        # Create the Y calculation with colored RGB references
+        y_code_start = Text("y = 0.2126 * ", font_size=28)
+        y_rgb_r = Text("rgb[:, :, 0]", font_size=28, color=RED)
+        y_plus1 = Text(" + 0.7152 * ", font_size=28)
+        y_rgb_g = Text("rgb[:, :, 1]", font_size=28, color=GREEN)
+        y_plus2 = Text(" + 0.0722 * ", font_size=28)
+        y_rgb_b = Text("rgb[:, :, 2]", font_size=28, color=BLUE)
+
+        y_line = VGroup(
+            y_code_start, y_rgb_r, y_plus1, y_rgb_g, y_plus2, y_rgb_b
+        ).arrange(RIGHT, buff=0)
+
+        # Create the Cb calculation with colored RGB
+        cb_code_start = Text("cb = 0.5 * (", font_size=28)
+        cb_rgb = Text("rgb[:, :, 2]", font_size=28, color=BLUE)
+        cb_end = Text(" - y) / (1 - 0.0722)  # Blue difference", font_size=28)
+
+        cb_line = VGroup(cb_code_start, cb_rgb, cb_end).arrange(RIGHT, buff=0)
+
+        # Create the Cr calculation with colored RGB
+        cr_code_start = Text("cr = 0.5 * (", font_size=28)
+        cr_rgb = Text("rgb[:, :, 0]", font_size=28, color=RED)
+        cr_end = Text(" - y) / (1 - 0.2126)  # Red difference", font_size=28)
+
+        cr_line = VGroup(cr_code_start, cr_rgb, cr_end).arrange(RIGHT, buff=0)
+
+        # Arrange all code lines
+        code_group = VGroup(code_comment, y_line, cb_line, cr_line).arrange(
+            DOWN, buff=0.5, aligned_edge=LEFT
+        )
+
+        code_group.next_to(rgb_values, DOWN, buff=1)
+
+        # Animate code appearing
+        self.play(Write(code_comment))
+        self.wait(0.5)
+
+        self.play(Write(y_line))
+        self.wait(1)
+
+        self.play(Write(cb_line))
+        self.wait(1)
+
+        self.play(Write(cr_line))
+        self.wait(1)
+
+        # Show final YCbCr values
+        final_values = Text(
+            "Final YCbCr: (147, -15, 21)", font_size=32, color=YELLOW
+        ).next_to(code_group, DOWN, buff=1)
+
+        self.play(Write(final_values))
+        self.wait(2)
+
+        # Clear previous elements
+        self.play(
+            FadeOut(conversion_title),
+            FadeOut(rgb_values),
+            FadeOut(code_group),
+            FadeOut(final_values),
+        )
+        self.wait(0.5)
+
+        # Show 4:4:4
+        format_444_label = Text("4:4:4 - Full Resolution", font_size=32)
+        format_444_label.to_edge(UP)
+        self.play(Write(format_444_label))
+
+        axes_444 = Axes(
+            x_range=[0, 5, 1],
+            y_range=[0, 3, 1],
+            x_length=8,
+            y_length=4,
+            axis_config={"color": WHITE},
+        )
+
+        x_label_444 = Text("1920", font_size=24)
+        y_label_444 = Text("1080", font_size=24)
+        x_label_444.next_to(axes_444.x_axis.get_end(), DOWN)
+        y_label_444.next_to(axes_444.y_axis.get_end(), LEFT)
+
+        self.play(Create(axes_444), Write(x_label_444), Write(y_label_444))
+        pixel_values_444 = create_ycbcr_grid(self, axes_444, full=True)
+        self.wait(3)  # Show 444 for 3 seconds
+
+        # Remove 4:4:4 completely
+        self.play(
+            *[
+                FadeOut(mob)
+                for mob in [
+                    format_444_label,
+                    axes_444,
+                    x_label_444,
+                    y_label_444,
+                    pixel_values_444,
+                ]
+            ]
+        )
+        self.wait(1)  # Clear pause between formats
+
+        # Show 4:2:2
+        format_422_label = Text(
+            "4:2:2 - Half Horizontal Color Resolution", font_size=32
+        )
+        format_422_label.to_edge(UP)
+        self.play(Write(format_422_label))
+
+        axes_422 = Axes(
+            x_range=[0, 5, 1],
+            y_range=[0, 3, 1],
+            x_length=8,
+            y_length=4,
+            axis_config={"color": WHITE},
+        )
+
+        x_label_422 = Text("1920", font_size=24)
+        y_label_422 = Text("1080", font_size=24)
+        x_label_422.next_to(axes_422.x_axis.get_end(), DOWN)
+        y_label_422.next_to(axes_422.y_axis.get_end(), LEFT)
+
+        self.play(Create(axes_422), Write(x_label_422), Write(y_label_422))
+        pixel_values_422 = create_ycbcr_grid(self, axes_422, horizontal_subsample=True)
+        self.wait(3)  # Show 422 for 3 seconds
+
+        # Remove 4:2:2 completely
+        self.play(
+            *[
+                FadeOut(mob)
+                for mob in [
+                    format_422_label,
+                    axes_422,
+                    x_label_422,
+                    y_label_422,
+                    pixel_values_422,
+                ]
+            ]
+        )
+        self.wait(1)  # Clear pause between formats
+
+        # Show 4:2:0
+        format_420_label = Text("4:2:0 - Quarter Color Resolution", font_size=32)
+        format_420_label.to_edge(UP)
+        self.play(Write(format_420_label))
+
+        axes_420 = Axes(
+            x_range=[0, 5, 1],
+            y_range=[0, 3, 1],
+            x_length=8,
+            y_length=4,
+            axis_config={"color": WHITE},
+        )
+
+        x_label_420 = Text("1920", font_size=24)
+        y_label_420 = Text("1080", font_size=24)
+        x_label_420.next_to(axes_420.x_axis.get_end(), DOWN)
+        y_label_420.next_to(axes_420.y_axis.get_end(), LEFT)
+
+        self.play(Create(axes_420), Write(x_label_420), Write(y_label_420))
+        pixel_values_420 = create_ycbcr_grid(
+            self, axes_420, horizontal_subsample=True, vertical_subsample=True
+        )
+        self.wait(3)  # Show 420 for 3 seconds
+
+        # Add final explanation
+        final_explanation = Text(
+            "4:2:0 is most common - used in H.264, H.265, and streaming video",
+            font_size=24,
+        )
+        final_explanation.to_edge(DOWN)
+        self.play(Write(final_explanation))
+        self.wait(2)
