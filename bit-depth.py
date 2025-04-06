@@ -315,57 +315,70 @@ class ValueRangeComparison(Scene):
 
 class StorageCalculation(Scene):
     def construct(self):
-        # Title
-        title = Text("How we get to 6.22 MB", font_size=32)
-        title.to_edge(UP)
-        self.play(Write(title))
+        # First line: Show complete calculation
+        calculation = Text(
+            "1920 × 1080 × 3 (RGB) × 8 (bits) = 49,766,400 bits", font_size=28
+        )
+        calculation.shift(UP * 3)  # Center horizontally
+        self.play(Write(calculation))
         self.wait(1)
 
-        # Resolution
-        resolution = Text("1920 × 1080 pixels", font_size=28)
-        resolution.next_to(title, DOWN, buff=0.5)
-        self.play(Write(resolution))
+        # Second line: Show bits to bytes conversion
+        bits_to_bytes = Text("8 bits = 1 byte", font_size=28)
+        bits_to_bytes.next_to(calculation, DOWN, buff=0.5)
+        bits_to_bytes.align_to(calculation, LEFT)
+        self.play(Write(bits_to_bytes))
         self.wait(1)
 
-        # Color channels
-        channels = Text("× 3 color channels (RGB)", font_size=28)
-        channels.next_to(resolution, DOWN, buff=0.5)
-        self.play(Write(channels))
+        # Third line: Show bytes calculation
+        bytes_calc = Text("49,766,400 ÷ 8 = 6,220,800 bytes", font_size=28)
+        bytes_calc.next_to(bits_to_bytes, DOWN, buff=0.5)
+        bytes_calc.align_to(calculation, LEFT)
+        self.play(Write(bytes_calc))
         self.wait(1)
 
-        # Bits per channel
-        bits = Text("× 8 bits per channel", font_size=28)
-        bits.next_to(channels, DOWN, buff=0.5)
-        self.play(Write(bits))
+        # Add explanation about M
+        mega_explanation = Text("M = Mega = 1,000,000", font_size=28)
+        mega_explanation.next_to(bytes_calc, DOWN, buff=0.5)
+        mega_explanation.align_to(calculation, LEFT)
+        self.play(Write(mega_explanation))
         self.wait(1)
 
-        # Total bits
-        total_bits = Text("= 49,766,400 bits", font_size=28)
-        total_bits.next_to(bits, DOWN, buff=0.5)
-        self.play(Write(total_bits))
+        # Final line: Show megabytes
+        mb_result = Text("= 6.22 MB", font_size=28, color=YELLOW)
+        mb_result.next_to(mega_explanation, DOWN, buff=0.5)
+        mb_result.align_to(calculation, LEFT)
+        self.play(Write(mb_result))
         self.wait(1)
 
-        # Convert to MB
-        mb = Text("÷ 8,388,608 bits per MB", font_size=28)
-        mb.next_to(total_bits, DOWN, buff=0.5)
-        self.play(Write(mb))
+        # FPS calculations
+        fps_title = Text("At 24 Frames Per Second:", font_size=28)
+        fps_title.next_to(mb_result, DOWN, buff=0.8)
+        fps_title.align_to(calculation, LEFT)
+        self.play(Write(fps_title))
         self.wait(1)
 
-        # Final result
-        result = Text("= 6.22 MB", font_size=32, color=YELLOW)
-        result.next_to(mb, DOWN, buff=0.5)
-        self.play(Write(result))
-        self.wait(2)
-
-        # 10-bit calculation
-        ten_bit = Text("10-bit: Same calculation but × 10 bits", font_size=28)
-        ten_bit.next_to(result, DOWN, buff=0.5)
-        self.play(Write(ten_bit))
+        # Bytes per second
+        bytes_per_second = Text("6.22 MB × 24 = 149 MB/s", font_size=28)
+        bytes_per_second.next_to(fps_title, DOWN, buff=0.5)
+        bytes_per_second.align_to(calculation, LEFT)
+        self.play(Write(bytes_per_second))
         self.wait(1)
 
-        ten_bit_result = Text("= 7.78 MB", font_size=32, color=YELLOW)
-        ten_bit_result.next_to(ten_bit, DOWN, buff=0.5)
-        self.play(Write(ten_bit_result))
+        # Bits per second
+        bits_per_second = Text("149 MB × 8 = 1200 Mbits/s", font_size=28)
+        bits_per_second.next_to(bytes_per_second, DOWN, buff=0.5)
+        bits_per_second.align_to(calculation, LEFT)
+        self.play(Write(bits_per_second))
+        self.wait(1)
+
+        # Internet speed comparison
+        internet_speed = Text(
+            "Typical home internet: 100-1000 Mbits/s", font_size=28, color=RED
+        )
+        internet_speed.next_to(bits_per_second, DOWN, buff=0.8)
+        internet_speed.align_to(calculation, LEFT)
+        self.play(Write(internet_speed))
         self.wait(2)
 
 
