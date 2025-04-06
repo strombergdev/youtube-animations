@@ -128,11 +128,6 @@ class BinaryToColor(Scene):
 
 class RGBPixelGrid(Scene):
     def construct(self):
-        # Title
-        title = Text("HD Image: 1920×1080 Pixels", font_size=36)
-        title.to_edge(UP)
-        self.play(Write(title))
-        self.wait(1)
 
         # Create axes
         axes = Axes(
@@ -153,14 +148,14 @@ class RGBPixelGrid(Scene):
         self.wait(1)
 
         # Load and display the example image
-        example_image = ImageMobject(
-            "imgs/beach1.png"
-        )  # Make sure to place this image in your media directory
-        example_image.set_width(8)  # Match width with axes
-        example_image.move_to(axes.get_center())
+        example_image = ImageMobject("imgs/beach2.png")
+        # Set height to match the y-axis range while maintaining aspect ratio
+        example_image.set_height(4)
+        # Move image up slightly
+        example_image.move_to(axes.get_center() + UP * 0.5)
 
+        # Show the image first
         self.play(FadeIn(example_image))
-        self.wait(1)
 
         # Add initial explanation
         initial_explanation = Text(
@@ -168,15 +163,15 @@ class RGBPixelGrid(Scene):
         )
         initial_explanation.to_edge(DOWN)
         self.play(Write(initial_explanation))
-        self.wait(2)
+        self.wait(1)
 
-        # Fade out image and explanation
         self.play(FadeOut(example_image), FadeOut(initial_explanation))
+        self.wait(0.5)
 
-        # Create a simplified grid of pixels (5x3 for demonstration)
+        # Create a simplified grid of pixels (4x3 for demonstration)
         pixel_values = VGroup()
 
-        for i in range(5):
+        for i in range(4):
             for j in range(3):
                 # Create RGB values
                 r = random.randint(0, 255)
@@ -186,16 +181,17 @@ class RGBPixelGrid(Scene):
                 # Create RGB dots with actual RGB colors
                 rgb_dots = VGroup()
                 for value, color in [(r, "#FF0000"), (g, "#00FF00"), (b, "#0000FF")]:
-                    dot = Dot(color=color, radius=0.1)
+                    dot = Dot(color=color, radius=0.15)  # Increased dot size
                     rgb_dots.add(dot)
 
-                # Arrange dots horizontally
-                rgb_dots.arrange(RIGHT, buff=0.1)
-                rgb_dots.move_to(axes.c2p(i + 0.5, j + 0.5) + UP * 0.2)
+                # Arrange dots horizontally with more space
+                rgb_dots.arrange(RIGHT, buff=0.2)  # Increased space between dots
+                # Adjust position: shift right and increase spacing between columns
+                rgb_dots.move_to(axes.c2p(i * 1.2 + 0.8, j + 0.5) + UP * 0.2)
 
                 # Create value text with larger font size
                 value_text = Text(f"[{r}, {g}, {b}]", font_size=20)
-                value_text.next_to(rgb_dots, DOWN, buff=0.1)
+                value_text.next_to(rgb_dots, DOWN, buff=0.15)
 
                 pixel_values.add(rgb_dots, value_text)
 
