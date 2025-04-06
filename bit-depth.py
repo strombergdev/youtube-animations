@@ -335,7 +335,7 @@ class BitDepthExplanation(Scene):
         self.wait(2)
 
 
-class DefaultTemplate(Scene):
+class RGBCircles(Scene):
     def construct(self):
         circleRed = Circle()  # create a circle
         circleRed.set_fill("#FF0000", opacity=1)  # pure red
@@ -990,45 +990,80 @@ class RGBtoYCbCr(Scene):
         coef_title = Text("Color Sensitivity in Human Vision:", font_size=32)
         coef_title.next_to(conversion_title, DOWN, buff=1)
 
+        # Create RGB circles first
+        circles_group = VGroup()
+
+        circleRed = Circle(radius=0.4)  # create a circle
+        circleRed.set_fill("#FF0000", opacity=1)  # pure red
+        circleRed.set_stroke(width=0)  # set the stroke width
+
+        circleGreen = Circle(radius=0.4)  # create a circle
+        circleGreen.set_fill("#00FF00", opacity=1)  # pure green
+        circleGreen.set_stroke(width=0)  # set the stroke width
+
+        circleBlue = Circle(radius=0.4)  # create a circle
+        circleBlue.set_fill("#0000FF", opacity=1)  # pure blue
+        circleBlue.set_stroke(width=0)  # set the stroke width
+
+        circles_group.add(circleGreen, circleRed, circleBlue)
+        circles_group.arrange(RIGHT, buff=2)
+        circles_group.next_to(coef_title, DOWN, buff=1)
+
         # Create percentage bars and labels
         green_percent = Text("72%", font_size=36, color=GREEN)
         red_percent = Text("21%", font_size=36, color=RED)
         blue_percent = Text("7%", font_size=36, color=BLUE)
 
-        percentages = VGroup(green_percent, red_percent, blue_percent)
-        percentages.arrange(RIGHT, buff=2)
-        percentages.next_to(coef_title, DOWN, buff=1)
+        # Position percentages under their respective circles
+        green_percent.next_to(circleGreen, DOWN, buff=0.3)
+        red_percent.next_to(circleRed, DOWN, buff=0.3)
+        blue_percent.next_to(circleBlue, DOWN, buff=0.3)
 
-        # Add color labels
+        # Add color labels above circles
         green_label = Text("GREEN", font_size=28, color=GREEN)
         red_label = Text("RED", font_size=28, color=RED)
         blue_label = Text("BLUE", font_size=28, color=BLUE)
 
-        green_label.next_to(green_percent, UP, buff=0.3)
-        red_label.next_to(red_percent, UP, buff=0.3)
-        blue_label.next_to(blue_percent, UP, buff=0.3)
+        green_label.next_to(circleGreen, UP, buff=0.3)
+        red_label.next_to(circleRed, UP, buff=0.3)
+        blue_label.next_to(circleBlue, UP, buff=0.3)
 
-        # Show coefficients
+        # Show coefficients with animation sequence
         self.play(Write(coef_title))
         self.wait(0.5)
 
-        for label, percent in zip(
+        # Show circles first
+        self.play(Create(circleGreen), Create(circleRed), Create(circleBlue))
+        self.wait(1)
+
+        # Then show labels and percentages for each color
+        for circle, label, percent in zip(
+            [circleGreen, circleRed, circleBlue],
             [green_label, red_label, blue_label],
             [green_percent, red_percent, blue_percent],
         ):
             self.play(Write(label), Write(percent))
             self.wait(0.5)
-        self.wait(1)
 
-        # Fade out coefficients before showing code
+        # Add explanation about green brightness
+        brightness_explanation = Text(
+            "Notice how the green circle appears brighter to our eyes", font_size=24
+        )
+        brightness_explanation.next_to(circles_group, DOWN, buff=1.5)
+        self.play(Write(brightness_explanation))
+        self.wait(2)
+
+        # Fade out everything
         self.play(
             FadeOut(coef_title),
+            FadeOut(circles_group),
             FadeOut(green_label),
             FadeOut(red_label),
             FadeOut(blue_label),
             FadeOut(green_percent),
             FadeOut(red_percent),
             FadeOut(blue_percent),
+            FadeOut(brightness_explanation),
         )
         self.wait(0.5)
 
