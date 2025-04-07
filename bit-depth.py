@@ -8,153 +8,7 @@ config.frame_height = 9
 # manim -pgh bit-depth.py BinaryToColor RGBPixelGrid BitDepthExplanation RGBCircles ValueRangeComparison StorageCalculation TenBitComparison BitDepthComparison BitDepthGrowth LuminancePerception RGBtoYCbCr
 
 
-class BinaryToColor(Scene):
-    def construct(self):
-        # Part 1: Everything is 0s and 1s
-        title1 = Text("Everything in a computer is 0s and 1s", font_size=36)
-        self.play(Write(title1))
-        self.wait(1)
-
-        # Create a cluster of random 0s and 1s
-        binary_cluster = VGroup()
-        for i in range(5):
-            for j in range(5):
-                bit = Text("0" if random.random() < 0.5 else "1", font_size=24)
-                bit.move_to([i - 2, j - 2, 0])
-                binary_cluster.add(bit)
-
-        self.play(FadeOut(title1), FadeIn(binary_cluster))
-        self.wait(1)
-
-        # Part 2: How these represent colors
-        title2 = Text("How do these 0s and 1s represent colors?", font_size=36)
-        self.play(FadeOut(binary_cluster), Write(title2))
-        self.wait(1)
-        self.play(FadeOut(title2))
-
-        # Create 8 bit boxes with random initial values
-        bits = []
-        bit_boxes = []
-        twos = VGroup()
-        initial_values = [random.choice(["0", "1"]) for _ in range(8)]
-
-        # Create the equals sign in a fixed position
-        equals = Text("= 0-1", font_size=36)
-        equals.shift(RIGHT * 6)  # Moved further right
-        self.add(equals)
-
-        # Show first bit and its value
-        box = Square(side_length=0.8)
-        box.set_fill(WHITE, opacity=0.2)
-        box.set_stroke(WHITE, width=2)
-        box.shift(LEFT * (3.5 - 0))
-        bit = Text(initial_values[0], font_size=36)
-        bit.move_to(box.get_center())
-        bits.append(bit)
-        bit_boxes.append(box)
-
-        two = Text("2", font_size=36)
-        two.next_to(box, UP)
-        twos.add(two)
-
-        self.play(Create(box), Write(bit), Write(two))
-
-        for i in range(1, 8):  # Start from 1 since we already showed the first bit
-            # Update the equals sign value before showing the next bit
-            max_value = 2**i - 1
-            new_equals = Text(f"= 0-{max_value}", font_size=36)
-            new_equals.move_to(equals.get_center())
-            self.play(
-                FadeOut(equals), FadeIn(new_equals)
-            )  # Combined into one play call
-            equals = new_equals
-
-            # Show the multiplication sign for the next step
-            if i < 7:
-                times = Text("×", font_size=36)
-                times.next_to(twos[-1], RIGHT)
-                self.play(Write(times))
-                twos.add(times)
-
-            # Now show the next bit
-            box = Square(side_length=0.8)
-            box.set_fill(WHITE, opacity=0.2)
-            box.set_stroke(WHITE, width=2)
-            box.shift(LEFT * (3.5 - i))
-            bit = Text(initial_values[i], font_size=36)
-            bit.move_to(box.get_center())
-            bits.append(bit)
-            bit_boxes.append(box)
-
-            two = Text("2", font_size=36)
-            two.next_to(box, UP)
-            twos.add(two)
-
-            self.play(Create(box), Write(bit), Write(two))
-
-        # Update to final value
-        final_equals = Text("= 0-255", font_size=36)
-        final_equals.move_to(equals.get_center())
-        self.play(FadeOut(equals), FadeIn(final_equals))  # Combined into one play call
-        self.wait(1)
-
-        # Part 4: Show all possible combinations
-        title4 = Text("How many possible combinations?", font_size=36)
-        title4.to_edge(UP)
-        self.play(Write(title4))
-        self.wait(1)
-
-        # Part 5: Show RGB squares with values
-        self.play(
-            FadeOut(twos),
-            FadeOut(final_equals),
-            FadeOut(title4),
-            FadeOut(VGroup(*bits)),
-            FadeOut(VGroup(*bit_boxes)),
-        )
-
-        # Create RGB squares
-        red_square = Square(side_length=2)
-        red_square.set_fill("#FF0000", opacity=1)
-        red_square.shift(LEFT * 4)
-
-        green_square = Square(side_length=2)
-        green_square.set_fill("#00FF00", opacity=1)
-
-        blue_square = Square(side_length=2)
-        blue_square.set_fill("#0000FF", opacity=1)
-        blue_square.shift(RIGHT * 4)
-
-        # Add value labels
-        red_value = Text("0-255", font_size=36)
-        red_value.next_to(red_square, DOWN)
-
-        green_value = Text("0-255", font_size=36)
-        green_value.next_to(green_square, DOWN)
-
-        blue_value = Text("0-255", font_size=36)
-        blue_value.next_to(blue_square, DOWN)
-
-        self.play(
-            Create(red_square),
-            Create(green_square),
-            Create(blue_square),
-            Write(red_value),
-            Write(green_value),
-            Write(blue_value),
-        )
-
-        # Final explanation
-        final_text = Text(
-            "Each color channel (R,G,B) can have 256 different values",
-            font_size=36,
-        )
-        final_text.to_edge(DOWN)
-        self.play(Write(final_text))
-        self.wait(2)
-
-
-class RGBPixelGrid(Scene):
+class BitDepth(Scene):
     def construct(self):
 
         # Create axes
@@ -279,6 +133,200 @@ class RGBPixelGrid(Scene):
         )
         text.shift(DOWN)
         self.play(Write(text))
+        self.wait(2)
+        self.play(FadeOut(text), FadeOut(selected_pixel))
+
+        self.wait(1)
+
+        # Part 1: Everything is 0s and 1s
+        title1 = Text("Everything in a computer is 0s and 1s", font_size=36)
+        self.play(Write(title1))
+        self.wait(1)
+
+        # Create a cluster of random 0s and 1s
+        binary_cluster = VGroup()
+        for i in range(5):
+            for j in range(5):
+                bit = Text("0" if random.random() < 0.5 else "1", font_size=24)
+                bit.move_to([i - 2, j - 2, 0])
+                binary_cluster.add(bit)
+
+        self.play(FadeOut(title1), FadeIn(binary_cluster))
+        self.wait(1)
+        self.play(FadeOut(binary_cluster))
+        # Part 2.5: What is a bit?
+        bit_title = Text("What is a bit?", font_size=36)
+        self.play(Write(bit_title))
+        self.wait(1)
+        self.play(FadeOut(bit_title))
+
+        # Create a single bit demonstration
+        bit_box = Square(side_length=0.8)
+        bit_box.set_fill(WHITE, opacity=0.2)
+        bit_box.set_stroke(WHITE, width=2)
+
+        # Create both possible bit values
+        bit_0 = Text("0", font_size=36)
+        bit_0.move_to(bit_box.get_center())
+        bit_1 = Text("1", font_size=36)
+        bit_1.move_to(bit_box.get_center())
+
+        # Show the bit box
+        self.play(Create(bit_box))
+
+        # Animate switching between 0 and 1
+        self.play(Write(bit_0))
+        self.wait(0.5)
+        self.play(Transform(bit_0, bit_1))
+        self.wait(0.5)
+        self.play(Transform(bit_1, bit_0))
+        self.wait(0.5)
+
+        # Add explanation
+        explanation = Text(
+            "A bit can be either 0 or 1\n(2 possible values)", font_size=24
+        )
+        explanation.next_to(bit_box, DOWN, buff=0.5)
+        self.play(Write(explanation))
+        self.wait(2)
+
+        # Clean up
+        self.play(
+            FadeOut(bit_box), FadeOut(bit_0), FadeOut(bit_1), FadeOut(explanation)
+        )
+
+        # Part 2: How these represent colors
+        title2 = Text("How do these 0s and 1s represent colors?", font_size=36)
+        self.play(FadeOut(binary_cluster), Write(title2))
+        self.wait(1)
+        self.play(FadeOut(title2))
+
+        # Create 8 bit boxes with random initial values
+        bits = []
+        bit_boxes = []
+        twos = VGroup()
+        initial_values = [random.choice(["0", "1"]) for _ in range(8)]
+
+        # Create the equals sign in a fixed position
+        equals = Text("= 0-1", font_size=36)
+        equals.shift(RIGHT * 6)  # Moved further right
+
+        # Add title above the equals sign
+        color_title = Text("Color values", font_size=24)
+        color_title.next_to(equals, UP, buff=0.5)
+
+        self.add(equals, color_title)
+
+        # Show first bit and its value
+        box = Square(side_length=0.8)
+        box.set_fill(WHITE, opacity=0.2)
+        box.set_stroke(WHITE, width=2)
+        box.shift(LEFT * (3.5 - 0))
+        bit = Text(initial_values[0], font_size=36)
+        bit.move_to(box.get_center())
+        bits.append(bit)
+        bit_boxes.append(box)
+
+        two = Text("2", font_size=36)
+        two.next_to(box, UP)
+        twos.add(two)
+
+        self.play(Create(box), Write(bit), Write(two))
+
+        for i in range(1, 8):  # Start from 1 since we already showed the first bit
+            # Update the equals sign value before showing the next bit
+            max_value = 2**i - 1
+            new_equals = Text(f"= 0-{max_value}", font_size=36)
+            new_equals.move_to(equals.get_center())
+            self.play(
+                FadeOut(equals), FadeIn(new_equals)
+            )  # Combined into one play call
+            equals = new_equals
+
+            # Show the multiplication sign for the next step
+            if i < 7:
+                times = Text("×", font_size=36)
+                times.next_to(twos[-1], RIGHT)
+                self.play(Write(times))
+                twos.add(times)
+
+            # Now show the next bit
+            box = Square(side_length=0.8)
+            box.set_fill(WHITE, opacity=0.2)
+            box.set_stroke(WHITE, width=2)
+            box.shift(LEFT * (3.5 - i))
+            bit = Text(initial_values[i], font_size=36)
+            bit.move_to(box.get_center())
+            bits.append(bit)
+            bit_boxes.append(box)
+
+            two = Text("2", font_size=36)
+            two.next_to(box, UP)
+            twos.add(two)
+
+            self.play(Create(box), Write(bit), Write(two))
+
+        # Add 8-bit title centered
+        bit_depth_title = Text("8-bit", font_size=36)
+        bit_depth_title.move_to(ORIGIN + DOWN * 2)
+
+        self.play(Write(bit_depth_title))
+        self.wait(1)
+
+        # Update to final value
+        final_equals = Text("= 0-255", font_size=36)
+        final_equals.move_to(equals.get_center())
+        self.play(FadeOut(equals), FadeIn(final_equals))
+        self.wait(1)
+
+        # Part 5: Show RGB squares with values
+        self.play(
+            FadeOut(twos),
+            FadeOut(final_equals),
+            FadeOut(color_title),
+            FadeOut(bit_depth_title),
+            FadeOut(VGroup(*bits)),
+            FadeOut(VGroup(*bit_boxes)),
+        )
+
+        # Create RGB squares
+        red_square = Square(side_length=2)
+        red_square.set_fill("#FF0000", opacity=1)
+        red_square.shift(LEFT * 4)
+
+        green_square = Square(side_length=2)
+        green_square.set_fill("#00FF00", opacity=1)
+
+        blue_square = Square(side_length=2)
+        blue_square.set_fill("#0000FF", opacity=1)
+        blue_square.shift(RIGHT * 4)
+
+        # Add value labels
+        red_value = Text("0-255", font_size=36)
+        red_value.next_to(red_square, DOWN)
+
+        green_value = Text("0-255", font_size=36)
+        green_value.next_to(green_square, DOWN)
+
+        blue_value = Text("0-255", font_size=36)
+        blue_value.next_to(blue_square, DOWN)
+
+        self.play(
+            Create(red_square),
+            Create(green_square),
+            Create(blue_square),
+            Write(red_value),
+            Write(green_value),
+            Write(blue_value),
+        )
+
+        # Final explanation
+        final_text = Text(
+            "Each color channel (R,G,B) can have 256 different values",
+            font_size=36,
+        )
+        final_text.to_edge(DOWN)
+        self.play(Write(final_text))
         self.wait(2)
 
 
