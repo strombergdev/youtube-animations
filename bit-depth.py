@@ -442,9 +442,9 @@ class BitDepth(Scene):
             FadeOut(VGroup(*bit_boxes_10)),
             FadeOut(twos_10),
             FadeOut(equals_10),
+            FadeOut(eight_bit_calc),
+            FadeOut(ten_bit_calc),
         )
-        self.wait(2)
-        self.play(FadeOut(eight_bit_calc), FadeOut(ten_bit_calc))
 
         # Create 8-bit value range
         title = Text("8-bit vs 10-bit size", font_size=28)
@@ -514,7 +514,7 @@ class BitDepth(Scene):
         eight_bit_storage.set_fill(BLUE, opacity=0.3)
         eight_bit_storage.next_to(storage_title, DOWN, buff=0.5)
         eight_bit_storage.shift(LEFT * 1.2)
-        eight_bit_label = Text("6.22 MB", font_size=20)
+        eight_bit_label = Text("6.22 MB", font_size=20, color=BLUE)
         eight_bit_label.move_to(eight_bit_storage)
 
         ten_bit_storage = Rectangle(
@@ -522,7 +522,7 @@ class BitDepth(Scene):
         )  # Smaller rectangles
         ten_bit_storage.set_fill(GREEN, opacity=0.3)
         ten_bit_storage.next_to(eight_bit_storage, RIGHT, buff=0.6)
-        ten_bit_label = Text("7.78 MB", font_size=20)
+        ten_bit_label = Text("7.78 MB", font_size=20, color=GREEN)
         ten_bit_label.move_to(ten_bit_storage)
 
         self.play(
@@ -542,6 +542,14 @@ class BitDepth(Scene):
         self.play(
             FadeOut(storage_text),
             FadeOut(storage_title),
+            FadeOut(eight_bit_label),
+            FadeOut(ten_bit_label),
+            FadeOut(eight_bit_values),
+            FadeOut(ten_bit_extension),
+            FadeOut(eight_bit_title),
+            FadeOut(ten_bit_title),
+            FadeOut(eight_bit_range),
+            FadeOut(ten_bit_range),
             FadeOut(eight_bit_storage),
             FadeOut(ten_bit_storage),
         )
@@ -669,201 +677,6 @@ def create_ycbcr_grid(
     scene.play(LaggedStart(*[Write(dot) for dot in pixel_values], lag_ratio=0.1))
 
     return pixel_values
-
-
-class BitDepthExplanation(Scene):
-    def construct(self):
-        # Create title
-        title = Text("8-bit Color Depth", font_size=36)
-        self.play(Write(title))
-        self.wait(1)
-        self.play(FadeOut(title))
-
-        # Create 8 binary digits
-        bits = []
-        bit_boxes = []
-        bit_values = []
-        bit_positions = []
-
-        # Create bit boxes and labels
-        for i in range(8):
-            # Create box for each bit
-            box = Square(side_length=0.8)
-            box.set_fill(WHITE, opacity=0.2)
-            box.set_stroke(WHITE, width=2)
-
-            # Position boxes from right to left
-            box.shift(LEFT * (3.5 - i))
-
-            # Create bit label (0 or 1)
-            bit = Text("0", font_size=36)
-            bit.move_to(box.get_center())
-
-            # Create position value (2^i)
-            value = Text(f"2^{i}", font_size=24)
-            value.next_to(box, UP)
-
-            bits.append(bit)
-            bit_boxes.append(box)
-            bit_values.append(value)
-            bit_positions.append(i)
-
-            self.play(Create(box), Write(value))
-
-        # Animate bits turning on one by one
-        decimal_value = 0
-        for i in range(8):
-            # Update bit to 1
-            new_bit = Text("1", font_size=36)
-            new_bit.move_to(bit_boxes[i].get_center())
-
-            # Calculate new decimal value
-            decimal_value += 2**i
-
-            # Create decimal value display
-            decimal_text = Text(f"= {decimal_value}", font_size=36)
-            decimal_text.next_to(bit_boxes[-1], RIGHT)
-
-            self.play(Transform(bits[i], new_bit), Write(decimal_text))
-            self.wait(0.5)
-
-            if i < 7:  # Don't remove the last decimal text
-                self.play(FadeOut(decimal_text))
-
-        # Final explanation
-        explanation = Text(
-            "8 bits = 2⁸ = 256 possible values (0-255)\nper color channel", font_size=36
-        )
-        explanation.to_edge(DOWN)
-        self.play(Write(explanation))
-        self.wait(2)
-
-
-class BitDepthComparison(Scene):
-    def construct(self):
-        # Title
-        title = Text("8-bit vs 10-bit Storage Comparison", font_size=36)
-        title.to_edge(UP)
-        self.play(Write(title))
-        self.wait(1)
-
-        # 8-bit calculation
-        eight_bit_calc = Text(
-            "1920 × 1080 × 3 (RGB) × 8 (bits) = 49,766,400 bits", font_size=28
-        )
-        eight_bit_calc.shift(UP * 2)
-        self.play(Write(eight_bit_calc))
-        self.wait(1)
-
-        # 8-bit bytes
-        eight_bit_bytes = Text("49,766,400 ÷ 8 = 6,220,800 bytes", font_size=28)
-        eight_bit_bytes.next_to(eight_bit_calc, DOWN, buff=0.5)
-        eight_bit_bytes.align_to(eight_bit_calc, LEFT)
-        self.play(Write(eight_bit_bytes))
-        self.wait(1)
-
-        # 8-bit MB result
-        eight_bit_mb = Text("= 6.22 MB", font_size=28, color=BLUE)
-        eight_bit_mb.next_to(eight_bit_bytes, DOWN, buff=0.5)
-        eight_bit_mb.align_to(eight_bit_calc, LEFT)
-        self.play(Write(eight_bit_mb))
-        self.wait(1)
-
-        # 10-bit calculation
-        ten_bit_calc = Text(
-            "1920 × 1080 × 3 (RGB) × 10 (bits) = 62,208,000 bits", font_size=28
-        )
-        ten_bit_calc.next_to(eight_bit_mb, DOWN, buff=1)
-        ten_bit_calc.align_to(eight_bit_calc, LEFT)
-        self.play(Write(ten_bit_calc))
-        self.wait(1)
-
-        # 10-bit bytes
-        ten_bit_bytes = Text("62,208,000 ÷ 8 = 7,776,000 bytes", font_size=28)
-        ten_bit_bytes.next_to(ten_bit_calc, DOWN, buff=0.5)
-        ten_bit_bytes.align_to(eight_bit_calc, LEFT)
-        self.play(Write(ten_bit_bytes))
-        self.wait(1)
-
-        # 10-bit MB result
-        ten_bit_mb = Text("= 7.78 MB", font_size=28, color=GREEN)
-        ten_bit_mb.next_to(ten_bit_bytes, DOWN, buff=0.5)
-        ten_bit_mb.align_to(eight_bit_calc, LEFT)
-        self.play(Write(ten_bit_mb))
-        self.wait(1)
-
-
-class BitDepthGrowth(Scene):
-    def construct(self):
-        # Title
-        title = Text("8-bit vs 10-bit: Value Growth vs Storage Growth", font_size=36)
-        title.to_edge(UP)
-        self.play(Write(title))
-        self.wait(1)
-
-        # 8-bit calculation
-        eight_bit_calc = Text(
-            "8-bit: 2 × 2 × 2 × 2 × 2 × 2 × 2 × 2 = 256", font_size=28
-        )
-        eight_bit_calc.shift(UP * 2)
-        self.play(Write(eight_bit_calc))
-        self.wait(1)
-
-        # 10-bit calculation
-        ten_bit_calc = Text(
-            "10-bit: 2 × 2 × 2 × 2 × 2 × 2 × 2 × 2 × 2 × 2 = 1024", font_size=28
-        )
-        ten_bit_calc.next_to(eight_bit_calc, DOWN, buff=0.8)
-        ten_bit_calc.align_to(eight_bit_calc, LEFT)
-        self.play(Write(ten_bit_calc))
-        self.wait(1)
-
-        # Value growth explanation
-        value_growth = Text(
-            "4× more color values (256 → 1024)", font_size=28, color=GREEN
-        )
-        value_growth.next_to(ten_bit_calc, DOWN, buff=0.8)
-        value_growth.align_to(eight_bit_calc, LEFT)
-        self.play(Write(value_growth))
-        self.wait(1)
-
-        # Create 8-bit binary display
-        eight_bit_binary = VGroup()
-        for i in range(8):
-            bit = Text("0", font_size=36)
-            bit.move_to([i - 3.5, -1, 0])
-            eight_bit_binary.add(bit)
-
-        eight_bit_label = Text("8 bits", font_size=28)
-        eight_bit_label.next_to(eight_bit_binary, DOWN, buff=0.5)
-        self.play(Write(eight_bit_binary), Write(eight_bit_label))
-        self.wait(1)
-
-        # Create 10-bit binary display
-        ten_bit_binary = VGroup()
-        for i in range(10):
-            bit = Text("0", font_size=36)
-            bit.move_to([i - 4.5, -2.5, 0])
-            ten_bit_binary.add(bit)
-
-        ten_bit_label = Text("10 bits", font_size=28)
-        ten_bit_label.next_to(ten_bit_binary, DOWN, buff=0.5)
-        self.play(Write(ten_bit_binary), Write(ten_bit_label))
-        self.wait(1)
-
-        # Storage ratio
-        storage_ratio = Text("10/8 = 1.25 (25% more storage)", font_size=28, color=BLUE)
-        storage_ratio.next_to(ten_bit_label, DOWN, buff=0.8)
-        self.play(Write(storage_ratio))
-        self.wait(1)
-
-        # Final comparison
-        final_comparison = Text(
-            "4× more precision for 25% more storage", font_size=36, color=YELLOW
-        )
-        final_comparison.next_to(storage_ratio, DOWN, buff=1)
-        self.play(Write(final_comparison))
-        self.wait(2)
 
 
 class LuminancePerception(Scene):
