@@ -4,6 +4,9 @@ import random
 config.frame_width = 16
 config.frame_height = 9
 
+# RENDER ALL
+# manim -pgh bit-depth.py BinaryToColor RGBPixelGrid BitDepthExplanation RGBCircles ValueRangeComparison StorageCalculation TenBitComparison BitDepthComparison BitDepthGrowth LuminancePerception RGBtoYCbCr
+
 
 class BinaryToColor(Scene):
     def construct(self):
@@ -29,17 +32,51 @@ class BinaryToColor(Scene):
         self.wait(1)
         self.play(FadeOut(title2))
 
-        # Part 3: 8 bits for color values
-        title3 = Text("8 bits = 1 color value", font_size=36)
-        self.play(Write(title3))
-        self.wait(1)
-        self.play(FadeOut(title3))
-
         # Create 8 bit boxes with random initial values
         bits = []
         bit_boxes = []
+        twos = VGroup()
         initial_values = [random.choice(["0", "1"]) for _ in range(8)]
-        for i in range(8):
+
+        # Create the equals sign in a fixed position
+        equals = Text("= 0-1", font_size=36)
+        equals.shift(RIGHT * 6)  # Moved further right
+        self.add(equals)
+
+        # Show first bit and its value
+        box = Square(side_length=0.8)
+        box.set_fill(WHITE, opacity=0.2)
+        box.set_stroke(WHITE, width=2)
+        box.shift(LEFT * (3.5 - 0))
+        bit = Text(initial_values[0], font_size=36)
+        bit.move_to(box.get_center())
+        bits.append(bit)
+        bit_boxes.append(box)
+
+        two = Text("2", font_size=36)
+        two.next_to(box, UP)
+        twos.add(two)
+
+        self.play(Create(box), Write(bit), Write(two))
+
+        for i in range(1, 8):  # Start from 1 since we already showed the first bit
+            # Update the equals sign value before showing the next bit
+            max_value = 2**i - 1
+            new_equals = Text(f"= 0-{max_value}", font_size=36)
+            new_equals.move_to(equals.get_center())
+            self.play(
+                FadeOut(equals), FadeIn(new_equals)
+            )  # Combined into one play call
+            equals = new_equals
+
+            # Show the multiplication sign for the next step
+            if i < 7:
+                times = Text("×", font_size=36)
+                times.next_to(twos[-1], RIGHT)
+                self.play(Write(times))
+                twos.add(times)
+
+            # Now show the next bit
             box = Square(side_length=0.8)
             box.set_fill(WHITE, opacity=0.2)
             box.set_stroke(WHITE, width=2)
@@ -48,38 +85,29 @@ class BinaryToColor(Scene):
             bit.move_to(box.get_center())
             bits.append(bit)
             bit_boxes.append(box)
-            self.play(Create(box), Write(bit))
+
+            two = Text("2", font_size=36)
+            two.next_to(box, UP)
+            twos.add(two)
+
+            self.play(Create(box), Write(bit), Write(two))
+
+        # Update to final value
+        final_equals = Text("= 0-255", font_size=36)
+        final_equals.move_to(equals.get_center())
+        self.play(FadeOut(equals), FadeIn(final_equals))  # Combined into one play call
+        self.wait(1)
 
         # Part 4: Show all possible combinations
         title4 = Text("How many possible combinations?", font_size=36)
         title4.to_edge(UP)
         self.play(Write(title4))
-
-        # Show multiplication of 2s
-        twos = VGroup()
-        for i in range(8):
-            two = Text("2", font_size=36)
-            two.next_to(bit_boxes[i], UP)
-            if i < 7:
-                times = Text("×", font_size=36)
-                times.next_to(two, RIGHT)
-                twos.add(two, times)
-            else:
-                twos.add(two)
-
-        self.play(Write(twos))
-        self.wait(1)
-
-        # Show equals 256
-        equals = Text("= 256", font_size=36)
-        equals.next_to(twos, RIGHT)
-        self.play(Write(equals))
         self.wait(1)
 
         # Part 5: Show RGB squares with values
         self.play(
             FadeOut(twos),
-            FadeOut(equals),
+            FadeOut(final_equals),
             FadeOut(title4),
             FadeOut(VGroup(*bits)),
             FadeOut(VGroup(*bit_boxes)),
@@ -171,12 +199,18 @@ class RGBPixelGrid(Scene):
         # Create a simplified grid of pixels (4x3 for demonstration)
         pixel_values = VGroup()
 
+        first_pxl = True
+        first_pxl_value = None
         for i in range(4):
             for j in range(3):
                 # Create RGB values
                 r = random.randint(0, 255)
                 g = random.randint(0, 255)
                 b = random.randint(0, 255)
+
+                if first_pxl:
+                    first_pxl_value = [r, g, b]
+                    first_pxl = False
 
                 # Create RGB dots with actual RGB colors
                 rgb_dots = VGroup()
@@ -201,11 +235,50 @@ class RGBPixelGrid(Scene):
 
         # Add final explanation
         explanation = Text(
-            "Each pixel contains 3 color values (R,G,B)\nEach value ranges from 0 to 255",
+            "Each pixel contains 3 color values (R,G,B)",
             font_size=24,
         )
         explanation.to_edge(DOWN)
         self.play(Write(explanation))
+        self.wait(2)
+
+        # Select one pixel to highlight (let's use the middle one)
+        selected_pixel = pixel_values[4]  # Middle pixel in 4x3 grid
+        selected_pixel_center = selected_pixel.get_center()
+
+        # Create a larger version of the selected pixel
+        larger_pixel = VGroup()
+        for dot in selected_pixel[0]:  # RGB dots
+            larger_dot = dot.copy()
+            larger_dot.scale(2)
+            larger_pixel.add(larger_dot)
+
+        # Scale up the value text
+        larger_value = selected_pixel[1].copy()  # Value text
+        larger_value.scale(1.5)
+        larger_pixel.add(larger_value)
+
+        # Center the larger pixel
+        larger_pixel.move_to(ORIGIN)
+
+        # Fade out everything except the selected pixel
+        self.play(
+            FadeOut(axes),
+            FadeOut(x_label),
+            FadeOut(y_label),
+            FadeOut(explanation),
+            *[FadeOut(p) for p in pixel_values if p != selected_pixel],
+            selected_pixel.animate.scale(2).move_to(ORIGIN),
+            run_time=2,
+        )
+        self.wait(2)
+
+        text = Text(
+            f"[{first_pxl_value[0]}, {first_pxl_value[1]}, {first_pxl_value[2]}]",
+            font_size=36,
+        )
+        text.shift(DOWN)
+        self.play(Write(text))
         self.wait(2)
 
 
