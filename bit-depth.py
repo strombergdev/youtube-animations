@@ -539,6 +539,78 @@ class BitDepth(Scene):
 
         self.play(Write(storage_text))
         self.wait(2)
+        self.play(
+            FadeOut(storage_text),
+            FadeOut(storage_title),
+            FadeOut(eight_bit_storage),
+            FadeOut(ten_bit_storage),
+        )
+
+        # First line: Show complete calculation
+        calculation = Text(
+            "1920 × 1080 × 3 (RGB) × 8 (bits) = 49,766,400 bits", font_size=28
+        )
+        calculation.shift(UP * 3)  # Center horizontally
+        self.play(Write(calculation))
+        self.wait(1)
+
+        # Second line: Show bits to bytes conversion
+        bits_to_bytes = Text("8 bits = 1 byte", font_size=28)
+        bits_to_bytes.next_to(calculation, DOWN, buff=0.5)
+        bits_to_bytes.align_to(calculation, LEFT)
+        self.play(Write(bits_to_bytes))
+        self.wait(1)
+
+        # Third line: Show bytes calculation
+        bytes_calc = Text("49,766,400 ÷ 8 = 6,220,800 bytes", font_size=28)
+        bytes_calc.next_to(bits_to_bytes, DOWN, buff=0.5)
+        bytes_calc.align_to(calculation, LEFT)
+        self.play(Write(bytes_calc))
+        self.wait(1)
+
+        # Add explanation about M
+        mega_explanation = Text("M = Mega = 1,000,000", font_size=28)
+        mega_explanation.next_to(bytes_calc, DOWN, buff=0.5)
+        mega_explanation.align_to(calculation, LEFT)
+        self.play(Write(mega_explanation))
+        self.wait(1)
+
+        # Final line: Show megabytes
+        mb_result = Text("= 6.22 MB", font_size=28, color=YELLOW)
+        mb_result.next_to(mega_explanation, DOWN, buff=0.5)
+        mb_result.align_to(calculation, LEFT)
+        self.play(Write(mb_result))
+        self.wait(1)
+
+        # FPS calculations
+        fps_title = Text("At 24 Frames Per Second:", font_size=28)
+        fps_title.next_to(mb_result, DOWN, buff=0.8)
+        fps_title.align_to(calculation, LEFT)
+        self.play(Write(fps_title))
+        self.wait(1)
+
+        # Bytes per second
+        bytes_per_second = Text("6.22 MB × 24 = 149 MB/s", font_size=28)
+        bytes_per_second.next_to(fps_title, DOWN, buff=0.5)
+        bytes_per_second.align_to(calculation, LEFT)
+        self.play(Write(bytes_per_second))
+        self.wait(1)
+
+        # Bits per second
+        bits_per_second = Text("149 MB × 8 = 1200 Mbits/s", font_size=28)
+        bits_per_second.next_to(bytes_per_second, DOWN, buff=0.5)
+        bits_per_second.align_to(calculation, LEFT)
+        self.play(Write(bits_per_second))
+        self.wait(1)
+
+        # Internet speed comparison
+        internet_speed = Text(
+            "Typical home internet: 100-1000 Mbits/s", font_size=28, color=RED
+        )
+        internet_speed.next_to(bits_per_second, DOWN, buff=0.8)
+        internet_speed.align_to(calculation, LEFT)
+        self.play(Write(internet_speed))
+        self.wait(2)
 
 
 def create_ycbcr_grid(
@@ -664,75 +736,6 @@ class BitDepthExplanation(Scene):
         )
         explanation.to_edge(DOWN)
         self.play(Write(explanation))
-        self.wait(2)
-
-
-class StorageCalculation(Scene):
-    def construct(self):
-        # First line: Show complete calculation
-        calculation = Text(
-            "1920 × 1080 × 3 (RGB) × 8 (bits) = 49,766,400 bits", font_size=28
-        )
-        calculation.shift(UP * 3)  # Center horizontally
-        self.play(Write(calculation))
-        self.wait(1)
-
-        # Second line: Show bits to bytes conversion
-        bits_to_bytes = Text("8 bits = 1 byte", font_size=28)
-        bits_to_bytes.next_to(calculation, DOWN, buff=0.5)
-        bits_to_bytes.align_to(calculation, LEFT)
-        self.play(Write(bits_to_bytes))
-        self.wait(1)
-
-        # Third line: Show bytes calculation
-        bytes_calc = Text("49,766,400 ÷ 8 = 6,220,800 bytes", font_size=28)
-        bytes_calc.next_to(bits_to_bytes, DOWN, buff=0.5)
-        bytes_calc.align_to(calculation, LEFT)
-        self.play(Write(bytes_calc))
-        self.wait(1)
-
-        # Add explanation about M
-        mega_explanation = Text("M = Mega = 1,000,000", font_size=28)
-        mega_explanation.next_to(bytes_calc, DOWN, buff=0.5)
-        mega_explanation.align_to(calculation, LEFT)
-        self.play(Write(mega_explanation))
-        self.wait(1)
-
-        # Final line: Show megabytes
-        mb_result = Text("= 6.22 MB", font_size=28, color=YELLOW)
-        mb_result.next_to(mega_explanation, DOWN, buff=0.5)
-        mb_result.align_to(calculation, LEFT)
-        self.play(Write(mb_result))
-        self.wait(1)
-
-        # FPS calculations
-        fps_title = Text("At 24 Frames Per Second:", font_size=28)
-        fps_title.next_to(mb_result, DOWN, buff=0.8)
-        fps_title.align_to(calculation, LEFT)
-        self.play(Write(fps_title))
-        self.wait(1)
-
-        # Bytes per second
-        bytes_per_second = Text("6.22 MB × 24 = 149 MB/s", font_size=28)
-        bytes_per_second.next_to(fps_title, DOWN, buff=0.5)
-        bytes_per_second.align_to(calculation, LEFT)
-        self.play(Write(bytes_per_second))
-        self.wait(1)
-
-        # Bits per second
-        bits_per_second = Text("149 MB × 8 = 1200 Mbits/s", font_size=28)
-        bits_per_second.next_to(bytes_per_second, DOWN, buff=0.5)
-        bits_per_second.align_to(calculation, LEFT)
-        self.play(Write(bits_per_second))
-        self.wait(1)
-
-        # Internet speed comparison
-        internet_speed = Text(
-            "Typical home internet: 100-1000 Mbits/s", font_size=28, color=RED
-        )
-        internet_speed.next_to(bits_per_second, DOWN, buff=0.8)
-        internet_speed.align_to(calculation, LEFT)
-        self.play(Write(internet_speed))
         self.wait(2)
 
 
